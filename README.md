@@ -31,7 +31,9 @@ independent of a main processor. The sketch was written after a question on GitH
 for a library for the PCA9632 device (which has more features than this sketch.
 It allows to set the duty cycle of the PWM signals from 0..255 = 0..100%.
 
-The start up default is 0%.
+The start up default is 0% for all 6 channels.
+
+My test UNO has a frequency of ~975 Hz and ~489 Hz depending on TIMER used.
 
 The sketch is simple but not tested to the extreme.
 
@@ -62,7 +64,7 @@ These are addressed as register 0, 1, 2, 3 etc.
 
 ### Commands
 
-The command from another MCU is pretty straightforward.
+The command to set a PWM value from another MCU is straightforward.
 It could look like this.
 
 ```cpp
@@ -78,6 +80,21 @@ void setPWM(uint8_t port, uint8_t value)
 
 ```
 
+Indicative table of values, (mini scope)
+
+|  value  |  duty cycle  |
+|:-------:|:------------:|
+|    0    |    0.0 %     |
+|    1    |    0.7 %     |
+|    5    |    2.3 %     |
+|   10    |    4.3 %     |
+|   25    |     10 %     |
+|   51    |     20 %     |
+|   63    |     25 %     |
+|  127    |     50 %     |
+|  191    |     75 %     |
+|  255    |    100 %     |
+
 
 ## Future
 
@@ -87,17 +104,21 @@ void setPWM(uint8_t port, uint8_t value)
 
 #### Should
 
-- does this sketch need a library to control it from another Arduino?
+- implement Power On Start Duty Cycle.
+  - store / load EEPROM?
+- implement **setAllZero()** full stop.
 
 #### Could
 
+- does this sketch need a library to control it from another Arduino?
 - more address pins?
-- implement **getPWM(port)**
-- implement **setAllZero()**  full stop.
-- implement **uptime** return millis()?
+- implement **getPWM(port)** read back
+- implement **setAllZero()** full stop.
+- implement **uptime()** return millis()?
 - implement frequency adjust
 - implement Power On Start Duty Cycle.
   - store / load EEPROM?
+- implement **reset()** to POS
 - implement debug / logging over Serial?
 
 

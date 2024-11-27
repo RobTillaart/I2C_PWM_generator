@@ -23,6 +23,13 @@ void setup()
   Serial.begin(115200);
   Serial.println(__FILE__);  //  for debugging
 
+  //  POWER ON START
+  for (int i = 0; i < 6; i++)
+  {
+    analogWrite(PWMpins[i], 0);
+  }
+
+  //  I2C ADDRESS
   uint8_t I2Caddress = 0x00;
   //  get address bit
   pinMode(I2C_ADDRESS_PIN, INPUT);
@@ -30,10 +37,11 @@ void setup()
 
   I2Caddress += I2C_BASE_ADDRESS;  //  0x30..0x31
 
+  //  START AS SLAVE
   Wire.begin(I2Caddress);
-
   Wire.setClock(I2C_BASE_CLOCK);
 
+  //  WAIT FOR COMMANDS
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
 }
