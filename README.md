@@ -21,7 +21,7 @@ Arduino UNO as a 6 channel I2C PWM generator
 
 ## Description
 
-** Experimental**
+**Experimental**
 
 I2C_PWM_generator is a sketch to change an Arduino UNO in an I2C slave device
 to control the 6 PWM outputs of the Arduino UNO. 
@@ -59,7 +59,7 @@ THe PWM pins of the Arduino UNO are:
 int PWMpins[6] = {3, 5, 6, 9, 10, 11};`
 ```
 
-These are addressed as register 0, 1, 2, 3 etc.
+These are addressed as register 0, 1, 2, 3, 4, 5.
 
 
 ### Commands
@@ -77,10 +77,12 @@ void setPWM(uint8_t port, uint8_t value)
   Wire.write(value);
   _error = Wire.endTransmission();
 }
-
 ```
 
-Indicative table of values, (mini scope)
+The command set will be elaborated in the future.
+
+
+### Indicative table of values, (mini scope)
 
 |  value  |  duty cycle  |
 |:-------:|:------------:|
@@ -96,6 +98,11 @@ Indicative table of values, (mini scope)
 |  255    |    100 %     |
 
 
+## Related
+
+- https://github.com/RobTillaart/PCA9632
+
+
 ## Future
 
 #### Must
@@ -104,20 +111,17 @@ Indicative table of values, (mini scope)
 
 #### Should
 
-- implement Power On Start Duty Cycle.
-  - store / load EEPROM?
-- implement **setAllZero()** full stop.
+- Power On Start => store / load EEPROM
+- redesign protocol, backwards compatible.
+
 
 #### Could
 
-- does this sketch need a library to control it from another Arduino?
 - more address pins?
 - implement **getPWM(port)** read back
 - implement **setAllZero()** full stop.
 - implement **uptime()** return millis()?
 - implement frequency adjust
-- implement Power On Start Duty Cycle.
-  - store / load EEPROM?
 - implement **reset()** to POS
 - implement debug / logging over Serial?
 
