@@ -17,7 +17,7 @@
 
 
 const int PWMpins[6] = {3, 5, 6, 9, 10, 11};
-//  power on start values can be adapted to your need.
+//  power on start (POS) values can be adapted to your need.
 const uint8_t POSValue[6] = {0, 0, 0, 0, 0, 0 };
 //  cache current value, prep for getPWM()
 uint8_t currentValue[6];
@@ -25,13 +25,13 @@ uint8_t currentValue[6];
 const int LEDPIN = 13;
 uint32_t lastBlink = 0;
 
+int reg = 0;
+
+
 void setup()
 {
   Serial.begin(115200);
   Serial.println(__FILE__);  //  for debugging
-
-  //  WATCHDOG
-  wdt_enable(WDTO_2S);
 
   //  HEARTBEAT PIN
   pinMode(13, OUTPUT);
@@ -56,6 +56,9 @@ void setup()
   Wire.begin(I2Caddress);
   Wire.setClock(I2C_BASE_CLOCK);
 
+  //  WATCHDOG
+  wdt_enable(WDTO_2S);
+
   //  WAIT FOR COMMANDS
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
@@ -77,28 +80,63 @@ void loop()
 }
 
 
+/////////////////////////////////////////////////////
+//
+//  EVENT HANDLERS
+//
 void receiveEvent(int count)
 {
-  int port = Wire.read();
-  int value = Wire.read();
+  int value;
+  reg = Wire.read();
+  switch (reg)
+  {
+    //  PWM set one
+    case 0 ... 5:
+      value = Wire.read();
+      currentValue[reg] = value;
+      analogWrite(PWMpins[reg], value);
+      break;
 
-  Serial.print(count);
-  if (port < 6)
-  {
-    analogWrite(PWMpins[port], value);
-    currentValue[port] = value;
-    //  Serial.println("S");  //  success
-  }
-  else
-  {
-    //  Serial.println("F");  //  fail
+    //  PWM set all (experimental)
+    case 0x20:
+      value = 0;
+      if (count >= 2) value = Wire.read();
+      //  flush remaining values?
+      for (int i = 0; i < 6; i++)
+      {
+        currentValue[reg] = value;
+        analogWrite(PWMpins[reg], value);
+      }
+      break;
+
+    //  PWM power on start (experimental)
+    case 0x21:
+      for (int i = 0; i < 6; i++)
+      {
+        analogWrite(PWMpins[i], POSValue[i]);
+        currentValue[i] = POSValue[i];
+      }
+      break;
+
+    default:  //  nothing
+      break;
   }
 }
 
-//  optional.
+
+//  experimental
 void requestEvent()
 {
-  Wire.write(0);
+  //  construct answer for current register.
+  switch (reg)
+  {
+    case 0 ... 5:
+      Wire.write(currentValue[reg]);
+      break;
+    default:
+      //  return nothing.
+      break;
+  }
 }
 
 
