@@ -86,12 +86,17 @@ void loop()
 //
 void receiveEvent(int count)
 {
-  int value;
+  // catch no data call
+  if (count == 0) return;
+  int value = 0;
+  //  read the "register"
   reg = Wire.read();
   switch (reg)
   {
     //  PWM set one
     case 0 ... 5:
+      //  value missing?
+      if (count < 2) return;
       value = Wire.read();
       currentValue[reg] = value;
       analogWrite(PWMpins[reg], value);
@@ -99,9 +104,8 @@ void receiveEvent(int count)
 
     //  PWM set all (experimental)
     case 0x20:
-      value = 0;
+      value = 0;  //  default value
       if (count >= 2) value = Wire.read();
-      //  flush remaining values?
       for (int i = 0; i < 6; i++)
       {
         currentValue[reg] = value;
