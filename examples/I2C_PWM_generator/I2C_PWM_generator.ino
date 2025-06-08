@@ -4,7 +4,8 @@
 // VERSION: 0.1.1
 //    DATE: 2024-11-25
 // PURPOSE: Arduino UNO as 6 channel PWM co-processor.
-//     URL: https://github.com/RobTillaart/PCA9553/issues/9
+//     URL: https://github.com/RobTillaart/I2C_PWM_generator
+//          https://github.com/RobTillaart/PCA9553/issues/9
 //
 
 #include <avr/wdt.h>
