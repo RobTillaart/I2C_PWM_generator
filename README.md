@@ -14,17 +14,17 @@ not used.
 
 # I2C_PWM_generator
 
-Arduino UNO as a 6 channel I2C PWM generator
+Arduino UNO as a 6 channel I2C PWM generator.
 
 
-## Version: 0.1.0
+## Version: 0.1.1
 
 ## Description
 
-** Experimental**
+**Experimental**
 
 I2C_PWM_generator is a sketch to change an Arduino UNO in an I2C slave device
-to control the 6 PWM outputs of the Arduino UNO. 
+to control the 6 PWM outputs of the Arduino UNO.
 
 One can think of this sketch as a co-processor that handles the 6 PWM channels
 independent of a main processor. The sketch was written after a question on GitHub
@@ -37,7 +37,7 @@ My test UNO has a frequency of ~975 Hz and ~489 Hz depending on TIMER used.
 
 The sketch is simple but not tested to the extreme.
 
-Typical application is to control the intensity of 6 LEDs or one RGB LED.
+Typical application is to control the intensity of 6 LEDs or an RGB LED.
 
 Feedback as always is welcome.
 
@@ -53,19 +53,22 @@ One need to adapt the code of the sketch to adjust the speed.
 
 ### PWM
 
-THe PWM pins of the Arduino UNO are:
+The PWM pins of the Arduino UNO are:
 
 ```
 int PWMpins[6] = {3, 5, 6, 9, 10, 11};`
 ```
 
-These are addressed as register 0, 1, 2, 3 etc.
+These are addressed as register 0, 1, 2, 3, 4, 5.
 
 
-### Commands
+## Commands
 
-The command to set a PWM value from another MCU is straightforward.
-It could look like this.
+
+### Set
+
+The command to set a PWM value is straightforward.
+It looks like this.
 
 ```cpp
 #include "Wire.h"
@@ -77,10 +80,61 @@ void setPWM(uint8_t port, uint8_t value)
   Wire.write(value);
   _error = Wire.endTransmission();
 }
-
 ```
 
-Indicative table of values, (mini scope)
+### Get
+
+The command to get a PWM value is straightforward.
+It could look like this.
+
+```cpp
+#include "Wire.h"
+
+uint8_t getPWM(uint8_t port)
+{
+  Wire.beginTransmission(0x30);  //  or 0x31
+  Wire.write(port);
+  _error = Wire.endTransmission();
+  Wire.requestFrom(0x30, 1);
+  return Wire.read();
+}
+```
+
+### Set all to same value
+
+The command to set a PWM value is straightforward.
+It looks like this.
+
+```cpp
+#include "Wire.h"
+
+void setAllPWM(uint8_t value)
+{
+  Wire.beginTransmission(0x30);  //  or 0x31
+  Wire.write(0x20);
+  Wire.write(value);
+  _error = Wire.endTransmission();
+}
+```
+
+### Reset all to power on value
+
+The command to set a PWM value is straightforward.
+It looks like this.
+
+```cpp
+#include "Wire.h"
+
+void resetAllPWM()
+{
+  Wire.beginTransmission(0x30);  //  or 0x31
+  Wire.write(0x21);
+  _error = Wire.endTransmission();
+}
+```
+
+
+### Indicative table of values, (mini scope)
 
 |  value  |  duty cycle  |
 |:-------:|:------------:|
@@ -96,6 +150,11 @@ Indicative table of values, (mini scope)
 |  255    |    100 %     |
 
 
+## Related
+
+- https://github.com/RobTillaart/PCA9632
+
+
 ## Future
 
 #### Must
@@ -104,21 +163,16 @@ Indicative table of values, (mini scope)
 
 #### Should
 
-- implement Power On Start Duty Cycle.
-  - store / load EEPROM?
-- implement **setAllZero()** full stop.
+- add "library" for the controlling MCU (see above).
+- design protocol, backwards compatible.
+
 
 #### Could
 
-- does this sketch need a library to control it from another Arduino?
+- Power On Start => store / load EEPROM
 - more address pins?
-- implement **getPWM(port)** read back
-- implement **setAllZero()** full stop.
 - implement **uptime()** return millis()?
-- implement frequency adjust
-- implement Power On Start Duty Cycle.
-  - store / load EEPROM?
-- implement **reset()** to POS
+- implement frequency adjust?
 - implement debug / logging over Serial?
 
 
